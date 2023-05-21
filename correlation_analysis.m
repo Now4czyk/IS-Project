@@ -37,7 +37,7 @@ figure;
 plot(tM, yM);
 legend('yM');
 
-% Metoda dokladna - nadal dopisane
+% Metoda dokladna
 M = 60;
 ruu = xcorr(u, u, 'biased');
 ryu = ryu(1:M);
@@ -53,7 +53,7 @@ hold on;
 plot(t, [0; g2(1:M-1)])
 legend('g2', 'ten przesuniety')
 
-%odpowiedź na inne wymuszenie - nadal dopisane
+%odpowiedź na inne wymuszenie
 h=zeros(M, 1);
 for i=1:M
     h(i)=Tp*sum(g2(1:i));
