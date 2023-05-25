@@ -49,9 +49,5 @@ impulse(Gm);
 %% transmitancja z widmowej
 
 s = tf('s')
-T = -0.005279385057
-Gw = 0.001*s/((1+T*s)^2)
-figure
-impulse(Gw)
-figure
-step(Gw)
+T = 
+Gw = 0.001/((1+))
