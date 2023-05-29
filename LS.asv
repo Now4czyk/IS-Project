@@ -18,36 +18,59 @@ yW = y;
 
 % uW = DaneDynW(:,1); yW = DaneDynW(:,2);     % dane - szum bialy
 % uC = DaneDynC(:,1); yC = DaneDynC(:,2);     % dane - szum kolorowy
-figure();    % wykresy
-plot(t, yW, 'r'); hold on; legend('y');
+
+training_dataset_percent = 0.7;
+validation_dataset_percentage = 1- training_dataset_percent;
+
+yW_training = yW(1:N*training_dataset_percent);
+uW_training = uW(1:N*training_dataset_percent);
+t_training = t(1:N*training_dataset_percent);
+
+yW_validation = yW(N*training_dataset_percent:N);
+uW_validation = uW(N*training_dataset_percent:N);
+t_validation = t(N*training_dataset_percent:N);
+
+
+figure('Position', [100, 100, 800, 600]);    % wykresy
+plot(t_validation, yW_validation, 'r'); hold on; legend('y');
 title('Odpowiedzi obiektu, estymaty i modelu'); xlabel('t'); ylabel('y');
 
 
 %% dalij
-Phi = [-yW(6:end-1), -yW(5:end-2), -yW(4:end-3), -yW(3:end-4), -yW(2:end-5), -yW(1:end-6), uW(6:end-1), uW(5:end-2), uW(4:end-3), uW(3:end-4), uW(2:end-5), uW(1:end-6)];
-p = (Phi'*Phi)^-1 *Phi'*yW(7:end);
-y_estym = [0; Phi*p];
-plot(t(6:end), y_estym, 'b--');
+% Phi = [-yW(6:end-1), -yW(5:end-2), -yW(4:end-3), -yW(3:end-4), -yW(2:end-5), -yW(1:end-6), uW(6:end-1), uW(5:end-2), uW(4:end-3), uW(3:end-4), uW(2:end-5), uW(1:end-6)];
+% p = (Phi'*Phi)^-1 *Phi'*yW(7:end);
+% y_estym = [0; Phi*p];
+% plot(t(6:end), y_estym, 'b--');
 
-Gm = tf([p(7), p(8), p(9), p(10), p(11), p(12)], [1, p(1), p(2), p(3), p(4), p(5), p(6)], Tp)
-ym = lsim(Gm, uW, t);
-plot(t, ym, 'k--')
+Phi = [-yW_training(4:end-1), -yW_training(3:end-2), -yW_training(2:end-3), -yW_training(1:end-4), uW_training(4:end-1), uW_training(3:end-2), uW_training(2:end-3), uW_training(1:end-4)];
+p = (Phi'*Phi)^-1 *Phi'*yW_training(5:end);
+Phi_validation = [-yW_validation(4:end-1), -yW_validation(3:end-2), -yW_validation(2:end-3), -yW_validation(1:end-4), uW_validation(4:end-1), uW_validation(3:end-2), uW_validation(2:end-3), uW_validation(1:end-4)];
+y_estym = [0; Phi_validation*p];
+plot(t_validation(4:end), y_estym, 'b--');
+
+y_estym_training = [0; Phi*p]
+
+
+Gm = tf([p(5), p(6), p(7), p(8)], [1, p(1), p(2), p(3), p(4)], Tp)
+ym = lsim(Gm, uW_validation, t_validation);
+ym_training = lsim(Gm, uW_training, t_training);
+plot(t_validation, ym, 'k--')
 legend('y', 'y_{est}', 'y_m');
 
-Ep = yW(1:end-5)-y_estym;
-Em = yW - ym;
+Ep = yW_validation(1:end-3)-y_estym;
+Em = yW_validation - ym;
 
-Vp = Ep'*Ep/N;
-Vm=Em'*Em/N;
+Vp = Ep'*Ep/(N*validation_dataset_percentage)
+Vm=Em'*Em/(N*validation_dataset_percentage)
 
-P = Vp*(Phi'*Phi)^-1;
-PU95 = [p-1.96*sqrt(diag(P/N)), p+1.96*sqrt(diag(P/N))]; % przedziały ufności
-t =  0:.1:200;
+Ep_training = yW_training(1:end-3)-y_estym_training;
+Em_training = yW_training - ym_training;
+
+Vp_training = Ep_training'*Ep_training/(N*training_dataset_percent)
+Vm_training=Em_training'*Em_training/(N*training_dataset_percent)
+
+% P = Vp*(Phi'*Phi)^-1;
+% PU95 = [p-1.96*sqrt(diag(P/N)), p+1.96*sqrt(diag(P/N))]; % przedziały ufności
+% t =  0:.1:200;
 figure;
-impulse(Gm);
-
-%% transmitancja z widmowej
-
-s = tf('s')
-T = 
-Gw = 0.001/((1+))
+step(Gm);
